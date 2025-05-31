@@ -1,125 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-* {
-  box-sizing: border-box;
-}
-
 body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #121212;
-  color: #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fff;
+  color: #222;
+  margin: 20px;
 }
 
-header {
-  padding: 1rem 2rem;
-  background-color: #1f1f1f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  text-align: center;
+#file-tree {
+  max-width: 600px;
+  margin: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+  padding: 16px;
 }
 
-h1 {
-  margin: 0;
-  font-weight: 600;
-  font-size: 1.8rem;
-  letter-spacing: 0.05em;
-  user-select: none;
-}
-
-main {
-  flex: 1;
-  padding: 1rem 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-  overflow-y: auto;
-}
-
-#file-tree ul {
+ul {
   list-style: none;
-  padding-left: 1.5rem;
+  padding-left: 20px;
   margin: 0;
-  transition: max-height 0.3s ease;
 }
 
-#file-tree li {
-  margin: 0.3rem 0;
-  line-height: 1.4;
+li {
+  position: relative;
   cursor: pointer;
   user-select: none;
-  outline-offset: 3px;
-  position: relative;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
-#file-tree li:focus-visible {
-  outline: 2px solid #3f51b5;
-  border-radius: 3px;
+li:hover,
+li:focus-visible {
+  background-color: #e8f0fe;
+  outline: none;
 }
 
-.folder > .folder-label {
-  display: inline-flex;
+li.folder > span.folder-label {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   font-weight: 600;
-  color: #90caf9;
+  color: #1a73e8;
+  user-select: none;
 }
 
-.folder.open > .folder-label {
-  color: #64b5f6;
-}
-
-.folder .fa-folder {
+li.folder.open > span.folder-label > i {
+  transform: rotate(90deg);
   transition: transform 0.3s ease;
 }
 
-.folder.open .fa-folder {
-  transform: rotate(90deg);
+li.folder > span.folder-label > i {
+  transition: transform 0.3s ease;
 }
 
-.file-link {
-  color: #bb86fc;
+/* Ikony plików */
+a.file-link {
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.2s ease;
+  color: #444;
+  padding-left: 24px;
+  position: relative;
+  display: inline-block;
 }
 
-.file-link:hover,
-.file-link:focus-visible {
-  color: #e370fd;
-  text-decoration: underline;
-}
-
-.file-link .fa-file {
-  color: #ce93d8;
-}
-
-/* Ukryj zawartość folderu domyślnie */
-.folder > div {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-  margin-left: 1.3rem;
-}
-
-/* Pokazuj zawartość po rozwinięciu */
-.folder.open > div {
-  max-height: 1000px; /* duża wartość, żeby objąć całą listę */
-}
-
-/* Scrollbar dla main */
-main::-webkit-scrollbar {
-  width: 8px;
-}
-
-main::-webkit-scrollbar-thumb {
-  background-color: #555;
-  border-radius: 4px;
-}
-
-main::-webkit-scrollbar-track {
-  background-color: #222;
+a.file-link::before {
+  content: "\f15b"; /* FontAwesome file icon unicode */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 14px;
+  pointer-events: none;
 }
