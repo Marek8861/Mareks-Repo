@@ -1,14 +1,17 @@
-const owner = 'Marek8861';        
-const repo = 'Mareks-Repo';       
-const branch = 'main';            
+const owner = 'Marek8861';
+const repo = 'Mareks-Repo';
+const branch = 'main';
+const rootPath = 'repo'; // <-- folder traktowany jako root
 
 const fileTreeContainer = document.getElementById('file-tree');
 const breadcrumbContainer = document.getElementById('breadcrumb');
 
-// Pobierz parametr ?path z URL
+// Pobierz parametr ?path z URL, jeśli pusty to ustaw na rootPath
 function getPathFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('path') || '';
+  let path = urlParams.get('path');
+  if (!path) path = rootPath; // jeśli pusto, to root
+  return path;
 }
 
 // Ustaw parametr ?path w URL bez przeładowania
@@ -17,55 +20,60 @@ function setPathToURL(path) {
   history.pushState(null, '', newURL);
 }
 
-// Zbuduj breadcrumb (ścieżkę folderów)
+// Buduj breadcrumb
 function buildBreadcrumb(path) {
   breadcrumbContainer.innerHTML = '';
   const parts = path.split('/').filter(Boolean);
   const fragment = document.createDocumentFragment();
 
-  // Root - nazwijmy go "repo" (lub dowolnie)
+  // Root link
   const rootLink = document.createElement('a');
-  rootLink.href = '?path=';
-  rootLink.textContent = 'repo';  // tu możesz zmienić na 'root' lub nazwę repo
+  rootLink.href = `?path=${encodeURIComponent(rootPath)}`;
+  rootLink.textContent = 'root';  // lub 'repo'
   rootLink.addEventListener('click', e => {
     e.preventDefault();
-    loadPath('');
-    setPathToURL('');
+    loadPath(rootPath);
+    setPathToURL(rootPath);
   });
   fragment.appendChild(rootLink);
 
-  if (parts.length > 0) {
-    fragment.appendChild(document.createTextNode(' / '));
-
-    const upLink = document.createElement('a');
-    upLink.href = '#';
-    upLink.textContent = '...';
-    upLink.title = 'Folder nadrzędny';
-    upLink.style.fontWeight = 'bold';
-    upLink.addEventListener('click', e => {
-      e.preventDefault();
-      const parentPath = parts.slice(0, -1).join('/');
-      loadPath(parentPath);
-      setPathToURL(parentPath);
-    });
-    fragment.appendChild(upLink);
-
-    fragment.appendChild(document.createTextNode(' / '));
+  // Jeśli jesteśmy w root (repo), to breadcrumb to tylko root
+  if (path === rootPath) {
+    breadcrumbContainer.appendChild(fragment);
+    return;
   }
 
+  // Inaczej - pokazujemy separator i "..."
+  fragment.appendChild(document.createTextNode(' / '));
+
+  const upLink = document.createElement('a');
+  upLink.href = `?path=${encodeURIComponent(rootPath)}`;
+  upLink.textContent = '...';
+  upLink.title = 'Folder nadrzędny (root)';
+  upLink.style.fontWeight = 'bold';
+  upLink.addEventListener('click', e => {
+    e.preventDefault();
+    loadPath(rootPath);
+    setPathToURL(rootPath);
+  });
+  fragment.appendChild(upLink);
+
+  fragment.appendChild(document.createTextNode(' / '));
+
+  // Dodaj ścieżkę od root bez pierwszej części (bo root jest już pokazany)
   let accumulatedPath = '';
-  parts.forEach((part, index) => {
+  parts.slice(1).forEach((part, index) => {
     if (index > 0) {
       fragment.appendChild(document.createTextNode(' / '));
     }
     accumulatedPath += (accumulatedPath ? '/' : '') + part;
     const link = document.createElement('a');
-    link.href = `?path=${encodeURIComponent(accumulatedPath)}`;
+    link.href = `?path=${encodeURIComponent(rootPath + '/' + accumulatedPath)}`;
     link.textContent = part;
     link.addEventListener('click', e => {
       e.preventDefault();
-      loadPath(accumulatedPath);
-      setPathToURL(accumulatedPath);
+      loadPath(rootPath + '/' + accumulatedPath);
+      setPathToURL(rootPath + '/' + accumulatedPath);
     });
     fragment.appendChild(link);
   });
@@ -73,7 +81,7 @@ function buildBreadcrumb(path) {
   breadcrumbContainer.appendChild(fragment);
 }
 
-async function fetchContents(path = '') {
+async function fetchContents(path = rootPath) {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -118,16 +126,15 @@ async function loadPath(path) {
     return;
   }
 
-  // Jeśli nie root (czyli path !== ''), dodaj folder '...' do folderu nadrzędnego
-  if (path !== '') {
+  // Jeżeli NIE jesteśmy w root, to pokaż folder „...” aby wrócić do root
+  if (path !== rootPath) {
     const backFolder = document.createElement('div');
     backFolder.className = 'node folder back';
     backFolder.textContent = '...';
-    backFolder.title = 'Folder nadrzędny';
+    backFolder.title = 'Folder nadrzędny (root)';
     backFolder.addEventListener('click', () => {
-      const parentPath = path.split('/').slice(0, -1).join('/');
-      loadPath(parentPath);
-      setPathToURL(parentPath);
+      loadPath(rootPath);
+      setPathToURL(rootPath);
     });
     fileTreeContainer.appendChild(backFolder);
   }
@@ -146,7 +153,6 @@ async function loadPath(path) {
   });
 }
 
-// Obsługa nawigacji wstecz/przód w przeglądarce
 window.addEventListener('popstate', () => {
   const path = getPathFromURL();
   loadPath(path);
