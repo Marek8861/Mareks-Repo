@@ -3,97 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Moje Maven Repo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background: #f0f0f0;
-    }
-    h1 {
-      margin-bottom: 1rem;
-    }
-    ul {
-      list-style: none;
-      padding-left: 1rem;
-    }
-    li.folder {
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-    }
-    li.file {
-      font-weight: normal;
-      color: #333;
-      cursor: default;
-    }
-    li.folder::before {
-      content: "▶ ";
-      display: inline-block;
-      width: 1em;
-      transform-origin: center;
-      transition: transform 0.2s ease;
-    }
-    li.folder.open::before {
-      transform: rotate(90deg);
-    }
-  </style>
+  <title>Przeglądarka plików repozytorium</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Moje Maven Repo</h1>
-  <div id="repo-container"></div>
+  <h1>Przeglądarka plików repozytorium</h1>
+  <div id="file-tree"></div>
 
   <script src="files.js"></script>
   <script>
-    // files.js musi definiować zmienną `files`, np.:
-    // const files = {
-    //   "com": {
-    //     "marek": {
-    //       "mojlib": {
-    //         "1.0.0": {
-    //           "mojlib-1.0.0.jar": "repo/com/marek/mojlib/1.0.0/mojlib-1.0.0.jar",
-    //           "mojlib-1.0.0.pom": "repo/com/marek/mojlib/1.0.0/mojlib-1.0.0.pom"
-    //         }
-    //       }
-    //     }
-    //   }
-    // };
+    function createFileTree(container, obj) {
+      const ul = document.createElement('ul');
 
-    const container = document.getElementById("repo-container");
-
-    function createTree(obj, path = "") {
-      const ul = document.createElement("ul");
       for (const key in obj) {
-        const li = document.createElement("li");
-        if (typeof obj[key] === "object") {
-          // folder
-          li.textContent = key;
-          li.classList.add("folder");
-          li.addEventListener("click", (e) => {
-            e.stopPropagation();
-            li.classList.toggle("open");
-            if (li.querySelector("ul")) {
-              li.querySelector("ul").remove();
-            } else {
-              const subtree = createTree(obj[key], path + "/" + key);
-              li.appendChild(subtree);
-            }
-          });
+        const li = document.createElement('li');
+
+        if (typeof obj[key] === 'string') {
+          // To jest plik
+          const a = document.createElement('a');
+          a.href = obj[key];
+          a.target = '_blank';
+          a.textContent = key;
+          li.appendChild(a);
         } else {
-          // file
+          // To jest folder
           li.textContent = key;
-          li.classList.add("file");
-          li.addEventListener("click", () => {
-            // Pobierz plik
-            window.open(obj[key], "_blank");
+          li.classList.add('folder');
+          li.addEventListener('click', (e) => {
+            e.stopPropagation();
+            li.classList.toggle('open');
           });
+          createFileTree(li, obj[key]);
         }
         ul.appendChild(li);
       }
-      return ul;
+
+      container.appendChild(ul);
     }
 
-    container.appendChild(createTree(files));
+    const container = document.getElementById('file-tree');
+    createFileTree(container, files);
   </script>
 </body>
 </html>
