@@ -1,41 +1,49 @@
+/* Podstawowy reset i font */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #fff;
   color: #222;
   margin: 20px;
+  user-select: none;
+}
+
+header h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 #file-tree {
-  max-width: 600px;
+  max-width: 700px;
   margin: auto;
   border: 1px solid #eee;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
   padding: 16px;
+  background: #f9f9f9;
+  overflow-x: auto;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-ul {
+ul.tree {
   list-style: none;
   padding-left: 20px;
   margin: 0;
 }
 
-li {
-  position: relative;
+li.node {
   cursor: pointer;
-  user-select: none;
   padding: 4px 8px;
   border-radius: 4px;
+  position: relative;
   transition: background-color 0.2s ease;
 }
 
-li:hover,
-li:focus-visible {
+li.node:hover {
   background-color: #e8f0fe;
-  outline: none;
 }
 
-li.folder > span.folder-label {
+li.node.folder > span.label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -44,26 +52,26 @@ li.folder > span.folder-label {
   user-select: none;
 }
 
-li.folder.open > span.folder-label > i {
-  transform: rotate(90deg);
+li.node.folder > span.label > i.toggle-icon {
   transition: transform 0.3s ease;
-}
-
-li.folder > span.folder-label > i {
-  transition: transform 0.3s ease;
-}
-
-/* Ikony plików */
-a.file-link {
-  text-decoration: none;
-  color: #444;
-  padding-left: 24px;
-  position: relative;
+  width: 14px;
   display: inline-block;
 }
 
-a.file-link::before {
-  content: "\f15b"; /* FontAwesome file icon unicode */
+li.node.folder.open > span.label > i.toggle-icon {
+  transform: rotate(90deg);
+}
+
+li.node.file > a {
+  text-decoration: none;
+  color: #444;
+  padding-left: 22px;
+  display: inline-block;
+  position: relative;
+}
+
+li.node.file > a::before {
+  content: "\f15b"; /* ikona pliku FontAwesome */
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
   position: absolute;
@@ -73,4 +81,10 @@ a.file-link::before {
   color: #999;
   font-size: 14px;
   pointer-events: none;
+}
+
+ul.tree ul.tree {
+  padding-left: 18px;
+  margin-top: 4px;
+  border-left: 1px solid #ddd;
 }
