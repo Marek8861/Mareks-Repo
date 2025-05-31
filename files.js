@@ -120,6 +120,11 @@ function createFolderNode(folder) {
 
 async function loadPath(path) {
   buildBreadcrumb(path);
+  const parts = path.split('/').filter(Boolean);
+  if (parts.length > 10) {
+    fileTreeContainer.innerHTML = '<p>Za głęboka ścieżka, aby uniknąć zapętlenia.</p>';
+    return;
+  }
   fileTreeContainer.innerHTML = 'Ładowanie...';
   const contents = await fetchContents(path);
   fileTreeContainer.innerHTML = '';
