@@ -118,7 +118,7 @@ async function loadPath(path) {
     return;
   }
 
-  // Jeśli nie root, dodaj element '...' do folderu nadrzędnego
+  // Jeśli nie root (czyli path !== ''), dodaj folder '...' do folderu nadrzędnego
   if (path !== '') {
     const backFolder = document.createElement('div');
     backFolder.className = 'node folder back';
@@ -133,7 +133,6 @@ async function loadPath(path) {
   }
 
   contents.sort((a, b) => {
-    // Foldery na górze
     if (a.type === b.type) return a.name.localeCompare(b.name);
     return a.type === 'dir' ? -1 : 1;
   });
