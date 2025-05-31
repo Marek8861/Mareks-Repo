@@ -34,11 +34,33 @@ function buildBreadcrumb(path) {
   });
   fragment.appendChild(rootLink);
 
+  if (parts.length > 0) {
+    // Dodaj separator po root
+    fragment.appendChild(document.createTextNode(' / '));
+    
+    // Dodaj '...' link do katalogu nadrzędnego
+    const upLink = document.createElement('a');
+    upLink.href = '#';
+    upLink.textContent = '...';
+    upLink.title = 'Folder nadrzędny';
+    upLink.style.fontWeight = 'bold';
+    upLink.addEventListener('click', e => {
+      e.preventDefault();
+      const parentPath = parts.slice(0, -1).join('/');
+      loadPath(parentPath);
+      setPathToURL(parentPath);
+    });
+    fragment.appendChild(upLink);
+
+    // Kolejny separator
+    fragment.appendChild(document.createTextNode(' / '));
+  }
+
   let accumulatedPath = '';
   parts.forEach((part, index) => {
-    const separator = document.createTextNode(' / ');
-    fragment.appendChild(separator);
-
+    if (index > 0) {
+      fragment.appendChild(document.createTextNode(' / '));
+    }
     accumulatedPath += (accumulatedPath ? '/' : '') + part;
     const link = document.createElement('a');
     link.href = `?path=${encodeURIComponent(accumulatedPath)}`;
@@ -97,6 +119,20 @@ async function loadPath(path) {
   if (!contents.length) {
     fileTreeContainer.textContent = 'Folder jest pusty.';
     return;
+  }
+
+  // Jeśli nie root, dodaj element '...' do folderu nadrzędnego
+  if (path !== '') {
+    const backFolder = document.createElement('div');
+    backFolder.className = 'node folder back';
+    backFolder.textContent = '...';
+    backFolder.title = 'Folder nadrzędny';
+    backFolder.addEventListener('click', () => {
+      const parentPath = path.split('/').slice(0, -1).join('/');
+      loadPath(parentPath);
+      setPathToURL(parentPath);
+    });
+    fileTreeContainer.appendChild(backFolder);
   }
 
   contents.sort((a, b) => {
