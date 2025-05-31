@@ -1,141 +1,98 @@
-/* style.css */
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
-
-* {
-  box-sizing: border-box;
-}
-
 body {
-  font-family: 'Fira Code', monospace, monospace;
-  background: #0f111a;
-  color: #e0e2e7;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #e0e0e0;
   margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-header {
-  background: #161a2f;
-  padding: 1rem 2rem;
-  box-shadow: inset 0 -1px 0 #1a1f3f;
-  user-select: none;
+  padding: 1rem;
 }
 
 header h1 {
-  font-weight: 600;
-  font-size: 1.6rem;
-  margin: 0;
-  letter-spacing: 0.02em;
-  color: #7bc1f9;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #61dafb;
+  user-select: none;
 }
 
 #breadcrumb {
-  margin-top: 0.5rem;
+  margin-bottom: 1rem;
   font-size: 0.9rem;
+  color: #999;
 }
 
 #breadcrumb a {
-  color: #7bc1f9;
+  color: #61dafb;
   text-decoration: none;
   cursor: pointer;
-  transition: color 0.3s ease;
+  user-select: none;
 }
 
 #breadcrumb a:hover {
-  color: #a1d6ff;
   text-decoration: underline;
 }
 
-main {
-  flex: 1;
-  padding: 1rem 2rem;
-  background: #121429;
-  overflow-y: auto;
-  user-select: none;
-}
-
 #file-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  border: 1px solid #333;
+  background: #1e1e1e;
+  border-radius: 6px;
+  padding: 1rem;
+  max-width: 800px;
+  user-select: none;
 }
 
 .node {
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    transform 0.2s ease;
-  user-select: none;
-  font-weight: 500;
+  gap: 12px;
+  transition: background-color 0.25s ease;
 }
 
 .node:hover {
-  background-color: #223466;
-  color: #b3d4ff;
-  transform: scale(1.03);
+  background-color: #333;
 }
 
-.node.file a {
-  color: #a7c5ff;
+.node.folder {
+  font-weight: 700;
+  color: #61dafb;
+  cursor: pointer;
+}
+
+.node.folder:hover {
+  background-color: #2a2a2a;
+}
+
+.node.file {
+  cursor: default;
+  justify-content: flex-start;
+}
+
+.node.file a:first-child {
+  color: #e0e0e0;
   text-decoration: none;
   flex-grow: 1;
 }
 
-.node.file a:hover {
+.node.file a:first-child:hover {
   text-decoration: underline;
-  color: #d2e4ff;
 }
 
-.node.folder {
-  color: #7bc1f9;
-  font-weight: 700;
-  position: relative;
-  user-select: none;
+.node.file .icon {
+  color: #999;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
-.node.folder::before {
-  content: "\f07b"; /* fontawesome folder */
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  margin-right: 0.7rem;
-  transition: transform 0.3s ease;
+.node.file .icon:hover {
+  color: #61dafb;
 }
-
-.node.folder.open::before {
-  transform: rotate(90deg);
-}
-
-.node.folder:active {
-  transform: scale(0.98);
-}
-
-/* Scrollbar (modern browsers) */
-main::-webkit-scrollbar {
-  width: 9px;
-}
-
-main::-webkit-scrollbar-track {
-  background: #0f111a;
-}
-
-main::-webkit-scrollbar-thumb {
-  background-color: #435f8e;
-  border-radius: 4px;
-  border: 2px solid #0f111a;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  header, main {
-    padding: 1rem;
-  }
-  header h1 {
-    font-size: 1.2rem;
-  }
-}
+s
