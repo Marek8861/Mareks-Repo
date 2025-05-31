@@ -1,48 +1,73 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Przeglądarka plików repozytorium</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Przeglądarka plików repozytorium</title>
+<link rel="stylesheet" href="style.css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 </head>
 <body>
-  <h1>Przeglądarka plików repozytorium</h1>
-  <div id="file-tree"></div>
+  <header>
+    <h1>Przeglądarka plików repozytorium</h1>
+  </header>
+  <main>
+    <nav id="file-tree" role="tree"></nav>
+  </main>
 
   <script src="files.js"></script>
   <script>
+    // Funkcja tworząca drzewo plików/folderów z ikonami i animacjami
     function createFileTree(container, obj) {
       const ul = document.createElement('ul');
+      ul.setAttribute('role', 'group');
 
       for (const key in obj) {
         const li = document.createElement('li');
+        li.setAttribute('role', 'treeitem');
+        li.tabIndex = 0;
 
         if (typeof obj[key] === 'string') {
-          // To jest plik
+          // Plik
           const a = document.createElement('a');
           a.href = obj[key];
           a.target = '_blank';
-          a.textContent = key;
+          a.rel = 'noopener noreferrer';
+          a.classList.add('file-link');
+          a.innerHTML = `<i class="fa-regular fa-file"></i> ${key}`;
           li.appendChild(a);
         } else {
-          // To jest folder
-          li.textContent = key;
+          // Folder
           li.classList.add('folder');
+          li.innerHTML = `<span class="folder-label"><i class="fa-solid fa-folder"></i> ${key}</span>`;
+          li.setAttribute('aria-expanded', 'false');
+
           li.addEventListener('click', (e) => {
             e.stopPropagation();
+            const expanded = li.getAttribute('aria-expanded') === 'true';
+            li.setAttribute('aria-expanded', !expanded);
             li.classList.toggle('open');
           });
-          createFileTree(li, obj[key]);
+
+          li.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              li.click();
+            }
+          });
+
+          const childUl = createFileTree(document.createElement('div'), obj[key]);
+          li.appendChild(childUl);
         }
+
         ul.appendChild(li);
       }
 
-      container.appendChild(ul);
+      return ul;
     }
 
     const container = document.getElementById('file-tree');
-    createFileTree(container, files);
+    container.appendChild(createFileTree(container, files));
   </script>
 </body>
 </html>
