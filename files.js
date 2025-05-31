@@ -23,10 +23,10 @@ function buildBreadcrumb(path) {
   const parts = path.split('/').filter(Boolean);
   const fragment = document.createDocumentFragment();
 
-  // Root (główna strona)
+  // Root - nazwijmy go "repo" (lub dowolnie)
   const rootLink = document.createElement('a');
   rootLink.href = '?path=';
-  rootLink.textContent = 'root';
+  rootLink.textContent = 'repo';  // tu możesz zmienić na 'root' lub nazwę repo
   rootLink.addEventListener('click', e => {
     e.preventDefault();
     loadPath('');
@@ -35,10 +35,8 @@ function buildBreadcrumb(path) {
   fragment.appendChild(rootLink);
 
   if (parts.length > 0) {
-    // Dodaj separator po root
     fragment.appendChild(document.createTextNode(' / '));
-    
-    // Dodaj '...' link do katalogu nadrzędnego
+
     const upLink = document.createElement('a');
     upLink.href = '#';
     upLink.textContent = '...';
@@ -52,7 +50,6 @@ function buildBreadcrumb(path) {
     });
     fragment.appendChild(upLink);
 
-    // Kolejny separator
     fragment.appendChild(document.createTextNode(' / '));
   }
 
