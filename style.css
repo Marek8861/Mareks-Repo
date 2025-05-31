@@ -1,0 +1,50 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f5f5f5;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#file-tree ul {
+  list-style: none;
+  padding-left: 20px;
+}
+
+#file-tree li {
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+#file-tree li a {
+  color: #1a0dab;
+  text-decoration: none;
+}
+
+#file-tree li a:hover {
+  text-decoration: underline;
+}
+
+#file-tree li.folder::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: 5px;
+  transition: transform 0.3s ease;
+}
+
+#file-tree li.folder.open::before {
+  transform: rotate(90deg);
+}
+
+#file-tree li.folder ul {
+  display: none;
+  margin-left: 15px;
+}
+
+#file-tree li.folder.open > ul {
+  display: block;
+}
