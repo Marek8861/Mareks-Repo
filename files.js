@@ -1,8 +1,58 @@
-const owner = 'Marek8861';        // Twój GitHub login
-const repo = 'Mareks-Repo';       // Nazwa repozytorium
-const branch = 'main';            // Gałąź (często 'main' lub 'master')
+const owner = 'Marek8861';        
+const repo = 'Mareks-Repo';       
+const branch = 'main';            
 
 const fileTreeContainer = document.getElementById('file-tree');
+const breadcrumbContainer = document.getElementById('breadcrumb');
+
+// Pobierz parametr ?path z URL
+function getPathFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('path') || '';
+}
+
+// Ustaw parametr ?path w URL bez przeładowania
+function setPathToURL(path) {
+  const newURL = `${window.location.pathname}?path=${encodeURIComponent(path)}`;
+  history.pushState(null, '', newURL);
+}
+
+// Zbuduj breadcrumb (ścieżkę folderów)
+function buildBreadcrumb(path) {
+  breadcrumbContainer.innerHTML = '';
+  const parts = path.split('/').filter(Boolean);
+  const fragment = document.createDocumentFragment();
+
+  // Root (główna strona)
+  const rootLink = document.createElement('a');
+  rootLink.href = '?path=';
+  rootLink.textContent = 'root';
+  rootLink.addEventListener('click', e => {
+    e.preventDefault();
+    loadPath('');
+    setPathToURL('');
+  });
+  fragment.appendChild(rootLink);
+
+  let accumulatedPath = '';
+  parts.forEach((part, index) => {
+    const separator = document.createTextNode(' / ');
+    fragment.appendChild(separator);
+
+    accumulatedPath += (accumulatedPath ? '/' : '') + part;
+    const link = document.createElement('a');
+    link.href = `?path=${encodeURIComponent(accumulatedPath)}`;
+    link.textContent = part;
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      loadPath(accumulatedPath);
+      setPathToURL(accumulatedPath);
+    });
+    fragment.appendChild(link);
+  });
+
+  breadcrumbContainer.appendChild(fragment);
+}
 
 async function fetchContents(path = '') {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
@@ -16,88 +66,59 @@ async function fetchContents(path = '') {
 }
 
 function createFileNode(file) {
-  const li = document.createElement('li');
-  li.classList.add('node', 'file');
+  const div = document.createElement('div');
+  div.className = 'node file';
   const a = document.createElement('a');
   a.href = file.download_url || file.html_url;
-  a.textContent = file.name;
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
-  li.appendChild(a);
-  return li;
+  a.textContent = file.name;
+  div.appendChild(a);
+  return div;
 }
 
 function createFolderNode(folder) {
-  const li = document.createElement('li');
-  li.classList.add('node', 'folder');
-  li.setAttribute('aria-expanded', 'false');
-
-  const label = document.createElement('span');
-  label.classList.add('label');
-  label.tabIndex = 0;
-
-  const icon = document.createElement('i');
-  icon.classList.add('fas', 'fa-chevron-right', 'toggle-icon');
-  label.appendChild(icon);
-
-  label.appendChild(document.createTextNode(folder.name));
-  li.appendChild(label);
-
-  const childrenUL = document.createElement('ul');
-  childrenUL.classList.add('tree');
-  childrenUL.style.display = 'none';
-  li.appendChild(childrenUL);
-
-  let loaded = false;
-
-  // Obsługa kliknięcia i klawiatury (enter/space) do otwierania folderu
-  function toggleFolder() {
-    const isOpen = li.classList.toggle('open');
-    label.setAttribute('aria-expanded', isOpen);
-    childrenUL.style.display = isOpen ? 'block' : 'none';
-
-    if (isOpen && !loaded) {
-      fetchContents(folder.path).then(contents => {
-        contents.forEach(item => {
-          if (item.type === 'dir') {
-            childrenUL.appendChild(createFolderNode(item));
-          } else if (item.type === 'file') {
-            childrenUL.appendChild(createFileNode(item));
-          }
-        });
-        loaded = true;
-      });
-    }
-  }
-
-  label.addEventListener('click', toggleFolder);
-  label.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleFolder();
-    }
+  const div = document.createElement('div');
+  div.className = 'node folder';
+  div.textContent = folder.name;
+  div.addEventListener('click', () => {
+    loadPath(folder.path);
+    setPathToURL(folder.path);
   });
-
-  return li;
+  return div;
 }
 
-async function buildTree() {
+async function loadPath(path) {
+  buildBreadcrumb(path);
   fileTreeContainer.innerHTML = 'Ładowanie...';
-  const rootContents = await fetchContents('');
+  const contents = await fetchContents(path);
   fileTreeContainer.innerHTML = '';
 
-  const ul = document.createElement('ul');
-  ul.classList.add('tree');
+  if (!contents.length) {
+    fileTreeContainer.textContent = 'Folder jest pusty.';
+    return;
+  }
 
-  rootContents.forEach(item => {
-    if (item.type === 'dir') {
-      ul.appendChild(createFolderNode(item));
-    } else if (item.type === 'file') {
-      ul.appendChild(createFileNode(item));
-    }
+  contents.sort((a, b) => {
+    // Foldery na górze
+    if (a.type === b.type) return a.name.localeCompare(b.name);
+    return a.type === 'dir' ? -1 : 1;
   });
 
-  fileTreeContainer.appendChild(ul);
+  contents.forEach(item => {
+    if (item.type === 'dir') {
+      fileTreeContainer.appendChild(createFolderNode(item));
+    } else if (item.type === 'file') {
+      fileTreeContainer.appendChild(createFileNode(item));
+    }
+  });
 }
 
-buildTree();
+// Obsługa nawigacji wstecz/przód w przeglądarce
+window.addEventListener('popstate', () => {
+  const path = getPathFromURL();
+  loadPath(path);
+});
+
+// Start
+loadPath(getPathFromURL());
